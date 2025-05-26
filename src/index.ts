@@ -75,3 +75,17 @@ document.getElementById("rec-button")?.addEventListener('click', function (event
 )
 
 document.getElementById("back-button")?.addEventListener('click', handleBackButtonClick)
+
+
+const toggle = document.getElementById('darkModeToggle') as HTMLInputElement;
+const icon = document.getElementById('toggle-icon');
+let theme = "light"
+document.body.setAttribute('data-theme', theme);
+toggle.checked = theme === 'light'; 
+
+toggle.addEventListener('change', () => {
+  const newTheme = toggle.checked ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  icon!.textContent = toggle.checked ? '💡' : '🌙';
+});
