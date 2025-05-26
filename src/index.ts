@@ -1,8 +1,22 @@
+const input_view = document.getElementById('input-view') as HTMLElement
+const result_view = document.getElementById("result-view") as HTMLElement
+
+const recommondationButton = document.getElementById("rec-button") as HTMLButtonElement
+const backButton = document.getElementById("back-button") as HTMLElement
+
+const usernameElement = document.getElementById("username") as HTMLFormElement
+const formElement = document.getElementById("form") as HTMLFormElement
+const alertElement = document.getElementById("alert") as HTMLElement
+const titleElement = document.getElementById('recommondation-title') as HTMLElement
+const textElement = document.getElementById('recommondation-text') as HTMLElement
+const imageElement = document.getElementById('preview-image') as HTMLImageElement
+const toggle = document.getElementById('darkModeToggle') as HTMLInputElement;
+const icon = document.getElementById('toggle-icon') as HTMLElement;
+const statusButtons = document.querySelectorAll('.btn-status') as NodeListOf<HTMLElement>
+
 function handleRecommondationButtonClick() {
-    const formElement = document.getElementById("form") as HTMLFormElement
     const formData = new FormData(formElement)
     const username = formData.get("username")
-
     const selectedStatuses: string[] = [];
 
     document.querySelectorAll('.btn-status.active').forEach(button => {
@@ -17,12 +31,8 @@ function handleRecommondationButtonClick() {
     const hostUrl = window.location.origin;
     const apiUrl = `${hostUrl}/api/random_anime?username=${username}&status=${status_string}`;
 
-    const input_view = document.getElementById('input-view') as HTMLElement
-    const result_view = document.getElementById("result-view") as HTMLElement
-    const alert = document.getElementById("alert") as HTMLElement
-
-    input_view?.classList.add("disabled")
-    alert?.classList.add("hidden")
+    input_view.classList.add("disabled")
+    alertElement.classList.add("hidden")
 
     fetch(apiUrl)
         .then(response => {
@@ -32,11 +42,8 @@ function handleRecommondationButtonClick() {
             return response.json();
         })
         .then(data => {
-            const titleElement = document.getElementById('recommondation-title') as HTMLElement
             titleElement.textContent = data.title
-            const textElement = document.getElementById('recommondation-text') as HTMLElement
             textElement.textContent = data.text
-            const imageElement = document.getElementById('preview-image') as HTMLImageElement
             imageElement.src = data.img_link
 
             input_view.classList.remove("disabled")
@@ -46,46 +53,69 @@ function handleRecommondationButtonClick() {
         })
         .catch(error => {
             input_view.classList.remove("disabled")
-            alert.classList.remove("hidden")
-            alert.textContent = `Error: ${error.message}`;
+            alertElement.classList.remove("hidden")
+            alertElement.textContent = `Error: ${error.message}`;
         })
 
 }
 
 function handleBackButtonClick() {
-    const input_view = document.getElementById('input-view') as HTMLElement
-    const result_view = document.getElementById('result-view') as HTMLElement
-
     result_view.classList.add("hidden")
     input_view.classList.remove("hidden")
 }
 
 // Toggle status buttons
-document.querySelectorAll('.btn-status').forEach(button => {
+statusButtons.forEach(button => {
     button.addEventListener('click', () => {
         button.classList.toggle('active');
+        validateButtonClickability()
     });
 });
 
 // Recommondation button 
-document.getElementById("rec-button")?.addEventListener('click', function (event) {
+recommondationButton.addEventListener('click', function (event) {
     event.preventDefault();
     handleRecommondationButtonClick()
-}
-)
+});
 
-document.getElementById("back-button")?.addEventListener('click', handleBackButtonClick)
+function validateButtonClickability() {
+    const formData = new FormData(formElement)
+    const username = formData.get("username")
+
+    let activeButtonCount = 0
+    statusButtons.forEach(button => {
+        if (button.classList.contains('active'))
+            activeButtonCount += 1
+    })
+
+    if (!username) {
+        recommondationButton.textContent = "🔍 A username is needed"
+        recommondationButton.disabled = true
+    }
+    else if (activeButtonCount == 0) {
+        recommondationButton.textContent = "🔍 At least one status filter is needed"
+        recommondationButton.disabled = true
+    }
+    else {
+        recommondationButton.textContent = "🔍 Get a Recommondation"
+        recommondationButton.disabled = false
+    }
+};
+
+usernameElement.addEventListener('input', validateButtonClickability)
+backButton.addEventListener('click', handleBackButtonClick)
 
 
-const toggle = document.getElementById('darkModeToggle') as HTMLInputElement;
-const icon = document.getElementById('toggle-icon');
+// Darkmode Toggle
 let theme = "light"
 document.body.setAttribute('data-theme', theme);
-toggle.checked = theme === 'light'; 
+toggle.checked = theme === 'light';
 
 toggle.addEventListener('change', () => {
-  const newTheme = toggle.checked ? 'light' : 'dark';
-  document.body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  icon!.textContent = toggle.checked ? '💡' : '🌙';
+    const newTheme = toggle.checked ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    icon!.textContent = toggle.checked ? '💡' : '🌙';
 });
+
+validateButtonClickability()
