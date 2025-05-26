@@ -42,6 +42,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../static/index.html'));
 });
 
+app.get('/index.js', (req, res) => {
+res.sendFile(path.join(__dirname, '../dist/index.js'));
+})
+
+app.get('/style.css', (req, res) => {
+res.sendFile(path.join(__dirname, '../static/style.css'));
+})
+
 app.listen(PORT, () => {
     console.log("API-Server Listening on PORT: ", PORT)
 })
