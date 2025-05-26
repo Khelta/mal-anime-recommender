@@ -9,8 +9,6 @@ The MAL Anime Recommender is a small web application that selects an anime to wa
 
 ## Usage
 
-Make sure to update the HOST_URL in the Dockerfile before building the image.
-
 ```
 # Build command
 docker build -t mal-anime-recommender .
