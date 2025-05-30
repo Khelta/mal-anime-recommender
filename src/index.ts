@@ -14,6 +14,9 @@ const toggle = document.getElementById('darkModeToggle') as HTMLInputElement;
 const icon = document.getElementById('toggle-icon') as HTMLElement;
 const statusButtons = document.querySelectorAll('.btn-status') as NodeListOf<HTMLElement>
 
+const titleSpinner = document.getElementById('title-spinner') as HTMLElement;
+const descSpinner = document.getElementById('desc-spinner') as HTMLElement;
+
 function handleRecommondationButtonClick() {
     const formData = new FormData(formElement)
     const username = formData.get("username")
@@ -29,12 +32,13 @@ function handleRecommondationButtonClick() {
     const status_string = selectedStatuses.join("")
 
     const hostUrl = window.location.origin;
-    const apiUrl = `${hostUrl}/api/random_anime?username=${username}&status=${status_string}`;
+    const randomAnimeURL = `${hostUrl}/api/random_anime?username=${username}&status=${status_string}`;
 
-    input_view.classList.add("disabled")
+    input_view.classList.add("hidden")
+    result_view.classList.remove("hidden")
     alertElement.classList.add("hidden")
 
-    fetch(apiUrl)
+    fetch(randomAnimeURL)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
@@ -43,16 +47,25 @@ function handleRecommondationButtonClick() {
         })
         .then(data => {
             titleElement.textContent = data.title
-            textElement.textContent = data.text
-            imageElement.src = data.img_link
+            titleSpinner.classList.add("d-none")
+            descSpinner.classList.remove("d-none")
+            
+            const animeDetailsURL = `${hostUrl}/api/anime_info?url=${data.url}`
 
-            input_view.classList.remove("disabled")
-            input_view.classList.add("hidden")
-            result_view.classList.remove("hidden")
-
+            fetch(animeDetailsURL).then(detailsResponse => {
+                if (!detailsResponse.ok) {
+                    throw new Error(`Request failed with status ${detailsResponse.status}`);
+                }
+                return detailsResponse.json();
+            }).then(
+                details => {
+                    descSpinner.classList.add("d-none")
+                    textElement.textContent = details.text
+                    imageElement.src = details.img_link
+                }
+            )
         })
         .catch(error => {
-            input_view.classList.remove("disabled")
             alertElement.classList.remove("hidden")
             alertElement.textContent = `Error: ${error.message}`;
         })
@@ -60,8 +73,10 @@ function handleRecommondationButtonClick() {
 }
 
 function handleBackButtonClick() {
-    result_view.classList.add("hidden")
-    input_view.classList.remove("hidden")
+    switchToInputView()
+    resetAlert()
+    resetSpinner()
+    resetTextAndImage()
 }
 
 // Toggle status buttons
@@ -119,3 +134,25 @@ toggle.addEventListener('change', () => {
 });
 
 validateButtonClickability()
+
+
+function resetSpinner() {
+    titleSpinner.classList.remove("d-none")
+    descSpinner.classList.add("d-none")
+}
+
+function resetAlert() {
+    alertElement.classList.add("hidden")
+    alertElement.textContent = ""
+}
+
+function switchToInputView() {
+    result_view.classList.add("hidden")
+    input_view.classList.remove("hidden")
+}
+
+function resetTextAndImage(){
+    titleElement.textContent = ""
+    textElement.textContent = ""
+    imageElement.src = ""
+}

@@ -10,7 +10,7 @@ type ResponseData = {
   img_link?: string,
 }
 
-async function select_random_anime(user: String, status_list: Array<number>): Promise<ResponseData> {
+export async function select_random_anime(user: String, status_list: Array<number>): Promise<ResponseData> {
   let status_index = select_index(0, status_list.length)
   let status = status_list[status_index]
 
@@ -47,7 +47,7 @@ async function select_random_anime(user: String, status_list: Array<number>): Pr
 }
 
 
-async function get_anime_data(url: string): Promise<ResponseData> {
+export async function get_anime_data(url: string): Promise<ResponseData> {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import {get_recommondation_data} from './functions.js'
+import {select_random_anime, get_anime_data} from './functions.js'
 import path from 'path'
 import { fileURLToPath } from 'url';
 
@@ -31,11 +31,20 @@ app.get("/api/random_anime", async (request, response) => {
     const username = request.query.username as string;
     const status = request.query.status as string
 
-    if (status) {
+    if (username && status) {
         const digitList: number[] = status.split('').map((char: string): number => parseInt(char, 10));
-        const recommondation_data = await get_recommondation_data(username, digitList)
+        const recommondation_data = await select_random_anime(username, digitList)
         response.json(recommondation_data);
     }
+})
+
+app.get("/api/anime_info", async (request, response) => {
+  const animeURL = request.query.url as string;
+
+  if (animeURL){
+    const animeDetails = await get_anime_data(animeURL)
+    response.json(animeDetails)
+  }
 })
 
 app.get('/', (req, res) => {
