@@ -34,7 +34,7 @@ app.get("/api/random_anime", async (request, response) => {
     if (username && status) {
         const digitList: number[] = status.split('').map((char: string): number => parseInt(char, 10));
         const recommondation_data = await select_random_anime(username, digitList)
-        response.json(recommondation_data);
+        response.status(recommondation_data.status).json(recommondation_data);
     }
 })
 

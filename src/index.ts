@@ -66,6 +66,7 @@ function handleRecommondationButtonClick() {
             )
         })
         .catch(error => {
+            handleBackButtonClick()
             alertElement.classList.remove("hidden")
             alertElement.textContent = `Error: ${error.message}`;
         })

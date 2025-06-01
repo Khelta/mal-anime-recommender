@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 const base_url = "https://myanimelist.net"
 
 type ResponseData = {
-  status_code: number,
+  status: number,
   url?: string
   title?: string,
   text?: string,
@@ -43,7 +43,11 @@ export async function select_random_anime(user: String, status_list: Array<numbe
 
   const anime = links[select_index(0, links.length)]
 
-  return { "status_code": 200, ...anime }
+  console.log(anime)
+  if(anime !== undefined) 
+    return { "status": 200, ...anime }
+  else
+    return {"status": 503}
 }
 
 
@@ -69,7 +73,7 @@ export async function get_anime_data(url: string): Promise<ResponseData> {
     const textElem = document.querySelector('p[itemprop="description"]');
     const textContent = textElem ? textElem.textContent?.trim() || undefined : undefined;
 
-    return { "status_code": 200, "img_link": imgSrc, "text": textContent };
+    return { "status": 200, "img_link": imgSrc, "text": textContent };
   });
 
   await browser.close();
@@ -84,13 +88,13 @@ function select_index(min_index: number, max_index: number): number {
 
 export async function get_recommondation_data(user: string, status_list: Array<number>): Promise<ResponseData> {
   const response = await select_random_anime(user, status_list)
-  if (response.status_code == 200) {
+  if (response.status == 200) {
     const anime_data = await get_anime_data(response.url || "")
     const result = { ...anime_data, "title": response.title }
     console.log(result)
     return result
   }
   else
-    return { "status_code": 400 }
+    return { "status": 400 }
 }
 
